@@ -1,30 +1,69 @@
 numbers <- c("A","2","3","4","5","6","7","8","9","T","J","Q","K")
 suits <- c("s","h","c","d")
 
-deck <- expand.grid(numbers = numbers, suits = suits)
-deck <- paste0(deck$numbers, deck$suits)
+deck <- expand.grid(numbers = numbers, 
+                    suits = suits)
+deck <- split(deck, f = deck)
 
-hand_p1_input <- c("As","Ah")
-hand_p2 <- c("2s","2h")
-hand_p3 <- c("3s","3h")
-hand_p4 <- c("4s","4h")
-hand_p5 <- c("5s","5h")
-hand_p6 <- c("6s","6h")
-hand_p7 <- c("7s","7h")
-hand_p8 <- c("8s","8h")
-hand_p9 <- c("9s","9h")
-hand_all <- c(hand_p1_input, hand_p2, hand_p3, 
-                    hand_p4, hand_p5, hand_p6,
-                    hand_p7, hand_p8, hand_p9)
+draw1 <- function(){
+  hand <- sample(deck, 1, replace = FALSE)
+  deck2 <- deck[!(deck %in% hand)]
+  assign("deck", deck2, envir = .GlobalEnv)
+  return(hand)
+}
 
-deck <- deck[!(deck %in% hand_all)]
+draw2 <- function(){
+  hand <- sample(deck, 2, replace = FALSE)
+  deck2 <- deck[!(deck %in% hand)]
+  assign("deck", deck2, envir = .GlobalEnv)
+  return(hand)
+}
 
-flop <- sample(deck, 3, replace = FALSE)
+draw3 <- function(){
+  hand <- sample(deck, 3, replace = FALSE)
+  deck2 <- deck[!(deck %in% hand)]
+  assign("deck", deck2, envir = .GlobalEnv)
+  return(hand)
+}
 
-deck <- deck[!(deck %in% flop)]
+hand_input <- function(N1,S1,N2,S2){
+  input <- data.frame(numbers = c(N1,N2), 
+                      suits = c(S1,S2))
+  input$numbers <- factor(input$numbers, 
+                          levels = c("A","2","3","4","5","6","7","8","9","T","J","Q","K"), 
+                          ordered = TRUE)
+  input$suits <- factor(input$suits, 
+                        levels = c("s","h","c","d"), 
+                        ordered = TRUE)
+  input <- split(input, f = input)
+  input <- deck[deck %in% input]
+  deck2 <- deck[!(deck %in% input)]
+  assign("deck", deck2, envir = .GlobalEnv)
+  return(input)
+}
 
-turn <- sample(deck, 1, replace = FALSE)
+hand_p1 <- hand_input("A","s","A","h")
+hand_p2 <- draw2()
+hand_p3 <- draw2()
+hand_p4 <- draw2()
+hand_p5 <- draw2()
+hand_p6 <- draw2()
+hand_p7 <- draw2()
+hand_p8 <- draw2()
+hand_p9 <- draw2()
 
-deck <- deck[!(deck %in% turn)]
+pf_1flop <- draw3()
 
-river <- sample(deck, 1, replace = FALSE)
+pf_2turn <- draw1()
+
+pf_3river <- draw1()
+
+# p1_made_hand <- c(hand_p1_input, pf_board)
+# 
+# p1_made_hand <- p1_made_hand[order(sapply(p1_made_hand,function(x) x[[1]]))]
+# p1_made_hand_n <- sapply(p1_made_hand,function(x) x[[1]])
+# p1_made_hand_s <- sapply(p1_made_hand,function(x) x[[2]])
+
+recog_hand <- function(player, flop, turn, river){
+  
+}
