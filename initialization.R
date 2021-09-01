@@ -3,67 +3,138 @@ suits <- c("s","h","c","d")
 
 deck <- expand.grid(numbers = numbers, 
                     suits = suits)
-deck <- split(deck, f = deck)
+deck <- split(deck, f = deck, drop = TRUE)
 
 draw1 <- function(){
-  hand <- sample(deck, 1, replace = FALSE)
-  deck2 <- deck[!(deck %in% hand)]
+  card <- sample(deck, 1, replace = FALSE)
+  deck2 <- deck[!(deck %in% card)]
   assign("deck", deck2, envir = .GlobalEnv)
-  return(hand)
+  return(card)
 }
 
 draw2 <- function(){
-  hand <- sample(deck, 2, replace = FALSE)
-  deck2 <- deck[!(deck %in% hand)]
+  card <- sample(deck, 2, replace = FALSE)
+  deck2 <- deck[!(deck %in% card)]
   assign("deck", deck2, envir = .GlobalEnv)
-  return(hand)
+  return(card)
 }
 
 draw3 <- function(){
-  hand <- sample(deck, 3, replace = FALSE)
-  deck2 <- deck[!(deck %in% hand)]
+  card <- sample(deck, 3, replace = FALSE)
+  deck2 <- deck[!(deck %in% card)]
   assign("deck", deck2, envir = .GlobalEnv)
-  return(hand)
+  return(card)
 }
 
-hand_input <- function(N1,S1,N2,S2){
-  input <- data.frame(numbers = c(N1,N2), 
-                      suits = c(S1,S2))
+twoCard_input <- function(C1, C2){
+  C1 <- strsplit(C1,"")
+  C2 <- strsplit(C2,"")
+  input <- data.frame(numbers = c(C1[[1]][1],C2[[1]][1]), 
+                      suits = c(C1[[1]][2],C2[[1]][2]))
   input$numbers <- factor(input$numbers, 
                           levels = c("A","2","3","4","5","6","7","8","9","T","J","Q","K"), 
                           ordered = TRUE)
   input$suits <- factor(input$suits, 
                         levels = c("s","h","c","d"), 
                         ordered = TRUE)
-  input <- split(input, f = input)
+  input <- split(input, f = input, drop = TRUE)
   input <- deck[deck %in% input]
   deck2 <- deck[!(deck %in% input)]
   assign("deck", deck2, envir = .GlobalEnv)
   return(input)
 }
 
-hand_p1 <- hand_input("A","s","A","h")
-hand_p2 <- draw2()
-hand_p3 <- draw2()
-hand_p4 <- draw2()
-hand_p5 <- draw2()
-hand_p6 <- draw2()
-hand_p7 <- draw2()
-hand_p8 <- draw2()
-hand_p9 <- draw2()
-
-pf_1flop <- draw3()
-
-pf_2turn <- draw1()
-
-pf_3river <- draw1()
-
-# p1_made_hand <- c(hand_p1_input, pf_board)
-# 
-# p1_made_hand <- p1_made_hand[order(sapply(p1_made_hand,function(x) x[[1]]))]
-# p1_made_hand_n <- sapply(p1_made_hand,function(x) x[[1]])
-# p1_made_hand_s <- sapply(p1_made_hand,function(x) x[[2]])
-
-recog_hand <- function(player, flop, turn, river){
-  
+threeCard_input <- function(C1, C2, C3){
+  C1 <- strsplit(C1,"")
+  C2 <- strsplit(C2,"")
+  C3 <- strsplit(C3,"")
+  input <- data.frame(numbers = c(C1[[1]][1],C2[[1]][1],C3[[1]][1]), 
+                      suits = c(C1[[1]][2],C2[[1]][2],C3[[1]][2]))
+  input$numbers <- factor(input$numbers, 
+                          levels = c("A","2","3","4","5","6","7","8","9","T","J","Q","K"), 
+                          ordered = TRUE)
+  input$suits <- factor(input$suits, 
+                        levels = c("s","h","c","d"), 
+                        ordered = TRUE)
+  input <- split(input, f = input, drop = TRUE)
+  input <- deck[deck %in% input]
+  deck2 <- deck[!(deck %in% input)]
+  assign("deck", deck2, envir = .GlobalEnv)
+  return(input)
 }
+
+oneCard_input <- function(C1){
+  C1 <- strsplit(C1,"")
+  input <- data.frame(numbers = c(C1[[1]][1]), 
+                      suits = c(C1[[1]][2]))
+  input$numbers <- factor(input$numbers, 
+                          levels = c("A","2","3","4","5","6","7","8","9","T","J","Q","K"), 
+                          ordered = TRUE)
+  input$suits <- factor(input$suits, 
+                        levels = c("s","h","c","d"), 
+                        ordered = TRUE)
+  input <- split(input, f = input, drop = TRUE)
+  input <- deck[deck %in% input]
+  deck2 <- deck[!(deck %in% input)]
+  assign("deck", deck2, envir = .GlobalEnv)
+  return(input)
+}
+
+hand_p1 <- twoCard_input("Ts","Jh")
+# hand_p2 <- draw2()
+# hand_p3 <- draw2()
+# hand_p4 <- draw2()
+# hand_p5 <- draw2()
+# hand_p6 <- draw2()
+# hand_p7 <- draw2()
+# hand_p8 <- draw2()
+# hand_p9 <- draw2()
+
+pf_1flop <- threeCard_input("Qs","Ks","As")
+
+pf_2turn <- oneCard_input("9c")
+
+pf_3river <- oneCard_input("8s")
+
+recog_straight <- function(h_num) {
+  # straight 
+  all_comb <- combn(h_num, 5, simplify=FALSE)
+  L <- length(all_comb)
+  str8_check <- data.frame(str8="",str8_size="")
+  for (i in 1:L) {
+    sumIfOne <- 
+      ifelse(as.numeric(all_comb[[i]][5]) - as.numeric(all_comb[[i]][4]) == 1, 1, 0) + 
+      ifelse(as.numeric(all_comb[[i]][4]) - as.numeric(all_comb[[i]][3]) == 1, 1, 0) + 
+      ifelse(as.numeric(all_comb[[i]][3]) - as.numeric(all_comb[[i]][2]) == 1, 1, 0) + 
+      ifelse(as.numeric(all_comb[[i]][2]) - as.numeric(all_comb[[i]][1]) == 1|
+             as.numeric(all_comb[[i]][2]) - as.numeric(all_comb[[i]][1]) == 9, 1, 0)
+    str8_check[i,1] <- ifelse(sumIfOne == 4,
+                      TRUE,
+                      ifelse(sum(all_comb[[i]] == c("A","T","J","Q","K")) == 5, TRUE, FALSE))
+    str8_check[i,2] <- ifelse(sumIfOne == 4 & sum(all_comb[[i]] == c("A","T","J","Q","K")) != 5, 
+                      sum(as.numeric(all_comb[[i]])), 
+                      ifelse(sum(all_comb[[i]] == c("A","T","J","Q","K")) == 5, 60, 0))
+  }
+  size <- as.numeric(str8_check[,2][which.max(str8_check[,2])])
+  return(size)
+}
+
+hand <- c(hand_p1, pf_1flop, pf_2turn, pf_3river)
+hand <- hand[order(sapply(hand,function(x) x[[1]]))]
+hand_nums <- sapply(hand,function(x) x[[1]])
+hand_suits <- sapply(hand,function(x) x[[2]])
+
+recog_straight(hand_nums)
+
+# recog_flop <- function(player, flop){
+#   hand <- c(player, flop)
+#   hand <- hand[order(sapply(hand,function(x) x[[1]]))]
+#   hand_nums <- sapply(hand,function(x) x[[1]])
+#   hand_suits <- sapply(hand,function(x) x[[2]])
+#   
+#   return(recog_straight(hand_nums))
+# }
+# 
+# recog_flop(hand_p1, pf_1flop)
+# 
+# 
